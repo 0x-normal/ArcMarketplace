@@ -19,8 +19,20 @@ import {
 
 function parseSlug(req: VercelRequest): string[] {
   const raw = req.query.slug;
-  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === "string" && raw.length > 0) return [raw];
+  // Fallback: derive slug from req.url path when Vercel doesn't populate it.
+  try {
+    const url = req.url || "";
+    const path = url.split("?")[0] || "";
+    const marker = "/api/notifications";
+    const idx = path.indexOf(marker);
+    if (idx >= 0) {
+      const rest = path.slice(idx + marker.length).replace(/^\/+|\/+$/g, "");
+      if (rest.length === 0) return [];
+      return rest.split("/").filter(Boolean).map(decodeURIComponent);
+    }
+  } catch {}
   return [];
 }
 
@@ -29,6 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const slug = parseSlug(req);
+    console.log("[notifications]", req.method, req.url, "slug=", slug);
 
     // POST /api/notifications  (no slug → create)
     if (req.method === "POST" && slug.length === 0) {
