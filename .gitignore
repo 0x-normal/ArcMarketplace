@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build output
+dist/
+frontend/dist/
+*.tsbuildinfo
+
+# Environment / secrets (NEVER commit)
+/.env
+/.env.local
+/.env.*.local
+frontend/.env.local
+# NOTE: frontend/.env is intentionally committed — it only contains VITE_MARKETPLACE_ADDRESS (public on-chain data)
+
+# Uploads (runtime-only)
+uploads/
+
+# Vercel
+.vercel
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+ehthumbs.db
+Desktop.ini

@@ -1,0 +1,43 @@
+{
+  "name": "arc-marketplace",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "E-commerce marketplace built on Arc by Circle — stablecoin payments, escrow, FX conversion, and ERC-8004 agent automation",
+  "scripts": {
+    "dev": "concurrently \"tsx src/api/index.ts\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && vite",
+    "build": "tsc",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^7.0.0",
+    "@tanstack/react-query": "^5.99.2",
+    "@vercel/blob": "^0.27.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "multer": "^2.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.48.4",
+    "wagmi": "^3.6.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^22.10.2",
+    "@vercel/node": "^3.2.24",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "postcss": "^8.4.49",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
