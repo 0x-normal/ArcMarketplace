@@ -1184,16 +1184,35 @@ function CheckoutPage({ listing, onCancel, onSuccess }: {
 
       if (listing.seller && address) {
         const amountUsd = (Number(listing.price) / 1e6).toFixed(2);
+        const sharedData = { listingId: listing.listingId, orderId, buyer: address, seller: listing.seller, amount: listing.price.toString(), title: listing.title };
+
+        // Seller notification
         fetch("/api/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             address: listing.seller,
             type: "sale",
-            message: `Your item (Listing #${listing.listingId}) was purchased for $${amountUsd} USDC by ${address.slice(0, 6)}...${address.slice(-4)}`,
-            data: { listingId: listing.listingId, orderId, buyer: address, amount: listing.price.toString(), title: listing.title, shipping },
+            message: `Your item "${listing.title}" was purchased for $${amountUsd} USDC by ${address.slice(0, 6)}...${address.slice(-4)}`,
+            data: { ...sharedData, shipping },
           }),
-        }).catch(() => {});
+        })
+          .then(r => { if (!r.ok) console.warn("[notif] seller notification failed", r.status); })
+          .catch(err => console.warn("[notif] seller notification error", err));
+
+        // Buyer confirmation notification
+        fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address,
+            type: "purchase",
+            message: `Order placed: "${listing.title}" for $${amountUsd} USDC. Seller will ship soon.`,
+            data: sharedData,
+          }),
+        })
+          .then(r => { if (!r.ok) console.warn("[notif] buyer notification failed", r.status); })
+          .catch(err => console.warn("[notif] buyer notification error", err));
       }
       // Redirect to orders view after short delay
       setTimeout(() => onSuccess(), 1500);
