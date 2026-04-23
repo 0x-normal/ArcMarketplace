@@ -1402,7 +1402,10 @@ function OnChainProductDetail({ listing, allListings, onBack, onNavigate, onRefr
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/reviews/${listing.listingId}`).then(r => r.json()).then(setReviews).catch(() => {});
+    fetch(`/api/reviews/${listing.listingId}`)
+      .then(r => r.json())
+      .then(data => setReviews(Array.isArray(data) ? data : []))
+      .catch(() => setReviews([]));
   }, [listing.listingId, reviewSubmitted]);
 
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
@@ -1905,7 +1908,10 @@ function NotificationBell() {
 
   const fetchNotifs = useCallback(() => {
     if (!address) return;
-    fetch(`/api/notifications/${address}`).then(r => r.json()).then(setNotifs).catch(() => {});
+    fetch(`/api/notifications/${address}`)
+      .then(r => r.json())
+      .then(data => setNotifs(Array.isArray(data) ? data : []))
+      .catch(() => setNotifs([]));
   }, [address]);
 
   useEffect(() => {
