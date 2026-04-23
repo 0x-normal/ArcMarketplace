@@ -2039,6 +2039,7 @@ export default function App() {
   const [showListModal, setShowListModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<OnChainListing | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<OnChainOrder | null>(null);
   const [checkoutMsg, setCheckoutMsg] = useState<string | null>(null);
   const { address, isConnected, chainId: walletChainId } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -2392,7 +2393,7 @@ export default function App() {
                   const isBuyer = address?.toLowerCase() === o.buyer.toLowerCase();
                   const orderDate = new Date(o.createdAt * 1000);
                   return (
-                  <div key={o.id} className="rounded-2xl glass p-5 transition-all hover:border-white/[0.12] animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 60, 400)}ms` }}>
+                  <div key={o.id} onClick={() => setSelectedOrder(o)} className="rounded-2xl glass p-5 cursor-pointer transition-all hover:border-white/[0.12] hover:bg-white/[0.03] animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 60, 400)}ms` }}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-bold text-white">Order #{o.id}</span>
@@ -2462,6 +2463,42 @@ export default function App() {
           onSuccess={() => { setCheckoutMsg("Item listed on-chain!"); setTimeout(() => setCheckoutMsg(null), 4000); refetchListings(); }}
         />
       )}
+
+      {/* ─── Order Details Modal (reuses NotificationDetailModal) ─── */}
+      {selectedOrder && (() => {
+        const o = selectedOrder;
+        const isBuyer = address?.toLowerCase() === o.buyer.toLowerCase();
+        const listingIdNum = (() => {
+          const m = /\d+/.exec(o.productId || "");
+          return m ? Number(m[0]) : undefined;
+        })();
+        const listing = listingIdNum !== undefined ? onChainListings.find(l => l.listingId === listingIdNum) : undefined;
+        const synthetic: NotifData = {
+          id: `order-${o.id}`,
+          address: address || "",
+          type: isBuyer ? "shipped" : "sale",
+          message: isBuyer
+            ? `Your order${listing ? ` "${listing.title}"` : ` #${o.id}`} — status: ${ORDER_STATUS_LABELS[o.status] || o.status}`
+            : `Order #${o.id}${listing ? ` for "${listing.title}"` : ""} from ${o.buyer.slice(0, 6)}...${o.buyer.slice(-4)}`,
+          data: {
+            orderId: o.id,
+            listingId: listingIdNum,
+            title: listing?.title,
+            buyer: o.buyer,
+            seller: o.seller,
+            amount: o.amount.toString(),
+          },
+          read: true,
+          createdAt: o.createdAt * 1000,
+        };
+        return (
+          <NotificationDetailModal
+            notif={synthetic}
+            onClose={() => setSelectedOrder(null)}
+            onRefresh={refetchOrders}
+          />
+        );
+      })()}
 
       {/* ─── Footer ─── */}
       <footer className="mt-20 border-t border-white/5 py-8">
