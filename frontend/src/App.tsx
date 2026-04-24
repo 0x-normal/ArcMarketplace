@@ -1927,7 +1927,7 @@ function NotificationBell() {
 
   const fetchNotifs = useCallback(() => {
     if (!address) return;
-    fetch(`/api/notifications/${address}`)
+    fetch(`/api/notifications?address=${address}`)
       .then(r => r.json())
       .then(data => setNotifs(Array.isArray(data) ? data : []))
       .catch(() => setNotifs([]));
@@ -1954,7 +1954,11 @@ function NotificationBell() {
 
   const markAllRead = () => {
     if (!address) return;
-    fetch(`/api/notifications/read-all/${address}`, { method: "POST" }).then(() => {
+    fetch(`/api/notifications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "read-all", address }),
+    }).then(() => {
       setNotifs(prev => prev.map(n => ({ ...n, read: true })));
     }).catch(() => {});
   };
@@ -1963,10 +1967,10 @@ function NotificationBell() {
     setSelected(n);
     setOpen(false);
     if (!n.read) {
-      fetch(`/api/notifications/${n.id}/read`, {
+      fetch(`/api/notifications`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
+        body: JSON.stringify({ action: "mark-read", id: n.id, address }),
       }).catch(() => {});
       setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
     }
